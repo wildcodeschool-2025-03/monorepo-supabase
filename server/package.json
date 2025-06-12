@@ -2,7 +2,7 @@
   "name": "@js-monorepo/server",
   "scripts": {
     "check-types": "tsc --noEmit",
-    "dev": "tsx watch --clear-screen=false ./src/main",
+    "dev": "NODE_ENV=DEV tsx watch --clear-screen=false ./src/main",
     "db:migrate": "tsx ./bin/migrate",
     "db:seed": "tsx ./bin/seed",
     "build": "tsx ./bin/migrate",
@@ -10,9 +10,11 @@
     "test": "jest --verbose"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.50.0",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
     "mysql2": "^3.14.0"
   },
   "devDependencies": {
