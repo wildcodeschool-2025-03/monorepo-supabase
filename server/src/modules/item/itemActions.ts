@@ -49,7 +49,8 @@ const read: RequestHandler = async (req, res, next) => {
   }
 };
 
-// The A of BREAD - Add (Create) operation
+// The A of BREAD - Add (Cr
+// eate) operation
 const add: RequestHandler = async (req, res, next) => {
   try {
     // Extract the item data from the request body
@@ -69,4 +70,32 @@ const add: RequestHandler = async (req, res, next) => {
   }
 };
 
-export default { joint, browse, read, add };
+const destroy: RequestHandler = async (req, res, next) => {
+  try {
+    // Fetch a specific item based on the provided ID
+    const itemId = Number(req.params.id);
+    const item = await itemRepository.destroy(itemId);
+
+    res.status(200).json({ message: "Item deleted successfully" });
+  } catch (err) {
+    // Pass any errors to the error-handling middleware
+    next(err);
+  }
+};
+
+const update: RequestHandler = async (req, res, next) => {
+  try {
+    console.log(req.body);
+
+    // Fetch a specific item based on the provided ID
+    const newItem = { title: req.body.title, id: Number(req.params.id) };
+    const item = await itemRepository.update(newItem);
+
+    res.status(200).json({ message: "Item update successfully" });
+  } catch (err) {
+    // Pass any errors to the error-handling middleware
+    next(err);
+  }
+};
+
+export default { joint, browse, read, add, destroy, update };

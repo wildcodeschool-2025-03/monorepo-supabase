@@ -1,3 +1,4 @@
+// types/express.d.ts (ou dans un fichier global)
 import type { RequestHandler } from "express";
 
 // Import access to data
@@ -39,6 +40,7 @@ const read: RequestHandler = async (req, res, next) => {
 const myAccount: RequestHandler = async (req, res, next) => {
   try {
     // Fetch a specific item based on the provided ID
+    // @ts-ignore
     const user = await userRepository.read(Number(req.userId));
 
     // If the item is not found, respond with HTTP 404 (Not Found)

@@ -10,9 +10,11 @@ const router = express.Router();
 import itemActions from "./modules/item/itemActions";
 
 router.get("/api/items/joint", check.checkToken, itemActions.joint);
-router.get("/api/items", check.checkToken, itemActions.browse);
+router.get("/api/items", itemActions.browse);
 router.get("/api/items/:id([0-9]+)", check.checkToken, itemActions.read);
 router.post("/api/items", check.checkToken, itemActions.add);
+router.delete("/api/items/:id([0-9]+)", itemActions.destroy);
+router.put("/api/items/:id([0-9]+)", itemActions.update);
 
 import userAction from "./modules/user/userAction";
 router.get(

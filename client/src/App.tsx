@@ -6,8 +6,12 @@ function App() {
   const [checked, setChecked] = useState(false);
   const [connected, setConnected] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
+  const [items, setItems] = useState([]);
+  const [isEdit, setIsEdit] = useState(false);
+  const [isAdd, setIsAdd] = useState(false);
+  const [title, setTitle] = useState("");
+  const [addTitle, setAddTitle] = useState("");
 
-  console.log(checked);
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
@@ -68,9 +72,106 @@ function App() {
         },
       },
     );
+
+    if (response.ok) {
+      const data = await response.json();
+      setCurrentUser(data);
+    } else {
+      const error = await response.json();
+      console.log(error);
+    }
   };
 
-  getCurrenctUser();
+  const getItems = async () => {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/items`, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: localStorage.getItem("token"),
+      },
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      setItems(data);
+    } else {
+      const error = await response.json();
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    getCurrenctUser();
+    getItems();
+  }, []);
+
+  const handleUpdate = async (item) => {
+    const response = await fetch(
+      `${import.meta.env.VITE_API_URL}/api/items/${item.id}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: localStorage.getItem("token"),
+        },
+        body: JSON.stringify({ title }),
+      },
+    );
+
+    if (response.ok) {
+      await response.json();
+      getItems();
+    } else {
+      const error = await response.json();
+      console.log(error);
+    }
+    setIsEdit(false);
+  };
+
+  const handleEdit = (item) => {
+    setIsEdit(true);
+    setTitle(item.title);
+  };
+  const handleDelete = async (item) => {
+    const response = await fetch(
+      `${import.meta.env.VITE_API_URL}/api/items/${item.id}`,
+      {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: localStorage.getItem("token"),
+        },
+      },
+    );
+
+    if (response.ok) {
+      const data = await response.json();
+      getItems();
+    } else {
+      const error = await response.json();
+      console.log(error);
+    }
+  };
+
+  const handleNew = async () => {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/items`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: localStorage.getItem("token"),
+      },
+      body: JSON.stringify({ title: addTitle, user_id: currentUser.id }),
+    });
+
+    if (response.ok) {
+      await response.json();
+      getItems();
+    } else {
+      const error = await response.json();
+      console.log(error);
+    }
+    setIsEdit(false);
+    setIsAdd(false);
+  };
 
   return (
     <>
@@ -78,7 +179,46 @@ function App() {
         {connected ? (
           <>
             <h1>Welcome back!</h1>
-            <h2>{currentUser?.email}</h2>
+            <button onClick={() => (isAdd ? handleNew() : setIsAdd(true))}>
+              {isAdd ? "Sauvegarder" : "Ajouté"}
+            </button>
+            {isAdd && (
+              <input
+                type={"text"}
+                name={"addTitle"}
+                value={addTitle}
+                onChange={(e) => setAddTitle(e.target.value)}
+              />
+            )}
+
+            <ul>
+              {items.map((item) => (
+                <li
+                  style={{ display: "flex", justifyContent: "space-between" }}
+                >
+                  <div>
+                    {isEdit ? (
+                      <input
+                        type={"text"}
+                        name={"title"}
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
+                      />
+                    ) : (
+                      item.title
+                    )}{" "}
+                  </div>
+                  <button
+                    onClick={() =>
+                      isEdit ? handleUpdate(item) : handleEdit(item)
+                    }
+                  >
+                    {isEdit ? "Sauvegarder" : "Modifier"}
+                  </button>
+                  <button onClick={() => handleDelete(item)}>Supprimer</button>
+                </li>
+              ))}
+            </ul>
             <button type={"submit"} onClick={handleLogout}>
               Logout
             </button>
